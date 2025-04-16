@@ -97,7 +97,7 @@ with st.expander("🔧 管理帳號（點擊展開）"):
         updated_users = [line.strip() for line in updated_text.splitlines() if line.strip()]
         st.session_state.user_ids = updated_users
         update_user_ids_to_github(updated_users)
-        st.experimental_rerun()
+        st.rerun()
 
 # 輸入兌換碼
 st.subheader("輸入優惠券代碼")
