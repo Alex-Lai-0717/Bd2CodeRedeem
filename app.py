@@ -19,19 +19,24 @@ st.title("🎁 BrownDust2 優惠券批次兌換工具")
 # 顯示帳號清單（精簡模式）
 # ---------------------------
 st.subheader("📋 目前帳號清單")
-st.markdown("、".join(st.session_state.user_ids))
+
+cols = st.columns(5)
+for i, user in enumerate(st.session_state.user_ids):
+    col = cols[i % 5]
+    with col:
+        st.markdown(f"✅ `{user}`")
 
 # ---------------------------
 # 帳號管理（展開編輯區）
 # ---------------------------
+# ✅ 帳號管理區域（用 text_area 批次編輯）
 with st.expander("🔧 管理帳號（點擊展開）"):
-    st.markdown("每行一個帳號名稱，儲存後會自動更新")
-    new_list = st.text_area("帳號清單", "\n".join(st.session_state.user_ids), height=200)
+    st.markdown("每行一個帳號名稱，儲存後會自動更新。")
+    updated_text = st.text_area("帳號清單", "\n".join(st.session_state.user_ids), height=200)
     if st.button("💾 儲存帳號清單"):
-        updated = [line.strip() for line in new_list.splitlines() if line.strip()]
-        st.session_state.user_ids = updated
-        st.success("✅ 帳號清單已更新！")
-        st.experimental_rerun()
+        updated_users = [line.strip() for line in updated_text.splitlines() if line.strip()]
+        st.session_state.user_ids = updated_users
+        st.success("✅ 帳號清單已更新（不需要重新整理頁面）")
 
 # ---------------------------
 # 兌換碼輸入與執行
