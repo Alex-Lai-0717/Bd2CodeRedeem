@@ -85,6 +85,7 @@ def update_user_ids_to_github(user_ids):
 
     if put_res.status_code in [200, 201]:
         st.success("✅ 已成功儲存並同步至 GitHub 🎉")
+
     else:
         st.error("❌ 同步 GitHub 失敗")
         st.json(put_res.json())
@@ -96,7 +97,7 @@ with st.expander("🔧 管理帳號（點擊展開）"):
         updated_users = [line.strip() for line in updated_text.splitlines() if line.strip()]
         st.session_state.user_ids = updated_users
         update_user_ids_to_github(updated_users)
-        st.success("✅ 帳號清單已更新（不需要重新整理頁面）")
+        st.experimental_rerun()
 
 # 輸入兌換碼
 st.subheader("輸入優惠券代碼")
