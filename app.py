@@ -27,17 +27,25 @@ for i, user in enumerate(st.session_state.user_ids):
         col.markdown(
             f"""
             <div style='
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                padding: 8px;
-                margin: 4px 0;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 10px;
+                margin: 6px 0;
+                background-color: #f8f9fa;
+                color: #333;
                 text-align: center;
-                background-color: #f9f9f9;
-            '>{user}</div>
+                min-width: 120px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 15px;
+                font-weight: 500;
+            ' title="{user}">
+                {user}
+            </div>
             """,
             unsafe_allow_html=True
         )
-
 # ---------------------------
 # 帳號管理（展開編輯區）
 # ---------------------------
