@@ -192,6 +192,6 @@ if st.session_state.last_result["log"]:
     col2.metric("⚠️ 已兌換過", len(st.session_state.last_result["used"]))
     col3.metric("❌ 發生錯誤", len(st.session_state.last_result["error"]))
 
-    with st.expander("🧾 詳細處理紀錄"):
+    with st.expander("🧾 處理紀錄"):
         for log in st.session_state.last_result["log"]:
             st.markdown(f"**{log['user']}** - {log['status']}")
