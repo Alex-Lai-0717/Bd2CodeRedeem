@@ -6,6 +6,14 @@ import base64
 
 REMOTE_USER_LIST_URL = "https://raw.githubusercontent.com/Alex-Lai-0717/Bd2CodeRedeem/main/user_ids.json"
 # 初始化帳號清單
+if "last_result" not in st.session_state:
+    st.session_state.last_result = {
+        "success": [],
+        "used": [],
+        "error": [],
+        "log": []
+    }
+
 if "user_ids" not in st.session_state:
     try:
         res = requests.get(REMOTE_USER_LIST_URL)
@@ -111,6 +119,7 @@ if "running" not in st.session_state:
 success_users = []
 used_users = []
 error_users = []
+execution_log = []
 
 # 啟動按鈕
 if st.button("🚀 開始兌換"):
@@ -126,6 +135,12 @@ if st.session_state.running:
         for user_id in st.session_state.user_ids:
             if not st.session_state.running:
                 st.warning("⛔️ 使用者已手動中止執行")
+                st.session_state.last_result = {
+                    "success": success_users,
+                    "used": used_users,
+                    "error": error_users,
+                    "log": execution_log
+                }
                 break
 
             payload = {
@@ -153,36 +168,72 @@ if st.session_state.running:
                 if "이미 사용한 쿠폰입니다" in message:
                     st.warning(f"⚠️ {user_id}：該帳號已使用過此兌換碼")
                     used_users.append(user_id)
+                    execution_log.append({
+                        "user": user_id,
+                        "status": "success",
+                        "response": data
+                    })
                     with st.expander("📄 查看完整回應", expanded=False):
                         st.json(data)
 
                 elif response.status_code == 200:
                     st.success(f"✅ {user_id}：兌換成功")
                     success_users.append(user_id)
+                    execution_log.append({
+                        "user": user_id,
+                        "status": "success",
+                        "response": data
+                    })
                     with st.expander("📄 查看完整回應", expanded=False):
                         st.json(data)
 
                 else:
                     st.error(f"❌ {user_id}：未知錯誤（HTTP {response.status_code}）")
                     error_users.append(user_id)
+                    execution_log.append({
+                        "user": user_id,
+                        "status": "success",
+                        "response": data
+                    })
                     with st.expander("📄 查看完整回應", expanded=False):
                         st.json(data)
 
             except Exception as e:
                 st.error(f"❌ {user_id} 發生錯誤: {e}")
                 error_users.append(user_id)
+                execution_log.append({
+                    "user": user_id,
+                    "status": "success",
+                    "response": data
+                })
             time.sleep(1)
 
     # 結束執行
     st.session_state.running = False
-
+    st.session_state.last_result = {
+        "success": success_users,
+        "used": used_users,
+        "error": error_users,
+        "log": execution_log
+    }
+    st.write("本輪成功帳號：", success_users)
     # ✅ 統計結果摘要
     st.subheader("📊 執行結果摘要")
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("✅ 成功兌換", len(success_users))
-    col2.metric("⚠️ 已兌換過", len(used_users))
-    col3.metric("❌ 發生錯誤", len(error_users))
+    if st.session_state.last_result["success"] or st.session_state.last_result["used"] or st.session_state.last_result[
+        "error"]:
+        st.subheader("📄 最近一次執行紀錄")
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("✅ 成功兌換", len(st.session_state.last_result["success"]))
+        col2.metric("⚠️ 已兌換過", len(st.session_state.last_result["used"]))
+        col3.metric("❌ 發生錯誤", len(st.session_state.last_result["error"]))
+
+        with st.expander("🔍 詳細處理紀錄"):
+            for log in st.session_state.last_result["log"]:
+                st.markdown(f"**{log['user']}** - {log['status']}")
+                with st.expander("查看 API 回應"):
+                    st.json(log["response"])
 
     if success_users:
         with st.expander("✅ 成功帳號清單"):
@@ -195,3 +246,6 @@ if st.session_state.running:
     if error_users:
         with st.expander("❌ 錯誤帳號清單"):
             st.markdown("、".join(error_users))
+
+elif not st.session_state.running and not st.session_state.last_result["log"]:
+    st.info("ℹ️ 尚未執行任何兌換，請輸入兌換碼並開始")
