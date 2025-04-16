@@ -3,56 +3,39 @@ import requests
 import json
 import time
 
-# 初始化使用者清單（session_state 中）
+# 初始化帳號清單
 if "user_ids" not in st.session_state:
-    st.session_state.user_ids = \
-        [
-            "同舟共雞", "火烤雞翅膀", "MuyanOuO",
-            "法式馬丁尼", "如果爐是一種天賦", "Danphen",
-            "超胖玨餅", "巴薩", "奧喵叫我來玩的", "靜小稀",
-            "FeiFeiyaaa", "寸丹丹", "奧喵喵喵", "舟舟三世"
-        ]
+    st.session_state.user_ids = [
+        "同舟共雞", "火烤雞翅膀", "MuyanOuO",
+        "法式馬丁尼", "如果爐是一種天賦", "Danphen",
+        "超胖玨餅", "巴薩", "奧喵叫我來玩的", "靜小稀",
+        "FeiFeiyaaa", "寸丹丹", "奧喵喵喵", "舟舟三世"
+    ]
 
 st.set_page_config(page_title="BrownDust2 優惠券兌換工具", page_icon="🎁")
 st.title("🎁 BrownDust2 優惠券批次兌換工具")
 
-# ----------------------
-# 使用者帳號列表區塊
-# ----------------------
-st.subheader("目前帳號清單")
-edited_users = []
+# ---------------------------
+# 顯示帳號清單（精簡模式）
+# ---------------------------
+st.subheader("📋 目前帳號清單")
+st.markdown("、".join(st.session_state.user_ids))
 
-# 顯示清單，並允許編輯或刪除
-for idx, user in enumerate(st.session_state.user_ids):
-    col1, col2, col3 = st.columns([5, 1, 1])
-
-    with col1:
-        new_value = st.text_input(f"帳號 {idx + 1}", user, key=f"user_{idx}")
-        edited_users.append(new_value)
-
-    with col2:
-        if st.button("🗑️", key=f"delete_{idx}"):
-            confirm = st.checkbox(f"確認刪除帳號「{user}」", key=f"confirm_{idx}")
-            if confirm:
-                st.session_state.user_ids.pop(idx)
-                st.experimental_rerun()
-
-# 更新使用者清單（僅更新文字）
-st.session_state.user_ids = edited_users
-
-# ----------------------
-# 新增帳號功能
-# ----------------------
-with st.form("add_user_form"):
-    new_user = st.text_input("新增帳號名稱", "")
-    submitted = st.form_submit_button("➕ 加入帳號")
-    if submitted and new_user.strip():
-        st.session_state.user_ids.append(new_user.strip())
+# ---------------------------
+# 帳號管理（展開編輯區）
+# ---------------------------
+with st.expander("🔧 管理帳號（點擊展開）"):
+    st.markdown("每行一個帳號名稱，儲存後會自動更新")
+    new_list = st.text_area("帳號清單", "\n".join(st.session_state.user_ids), height=200)
+    if st.button("💾 儲存帳號清單"):
+        updated = [line.strip() for line in new_list.splitlines() if line.strip()]
+        st.session_state.user_ids = updated
+        st.success("✅ 帳號清單已更新！")
         st.experimental_rerun()
 
-# ----------------------
-# 輸入兌換碼並執行批次兌換
-# ----------------------
+# ---------------------------
+# 兌換碼輸入與執行
+# ---------------------------
 st.subheader("輸入優惠券代碼")
 code = st.text_input("請輸入兌換碼")
 
