@@ -4,7 +4,7 @@ import json
 import time
 
 APP_ID = "bd2-live"
-USER_IDS = ["同舟共雞", "ID玩家二", "ID玩家三"]
+USER_IDS = ["同舟共雞", "火烤雞翅膀", "ID玩家三"]
 API_URL = "https://loj2urwaua.execute-api.ap-northeast-1.amazonaws.com/prod/coupon"
 HEADERS = {
     "Content-Type": "application/json",
@@ -15,7 +15,7 @@ HEADERS = {
 
 st.set_page_config(page_title="BrownDust2 優惠券兌換工具", page_icon="🎁")
 
-st.title("🎁 BrownDust2 優惠券批次兌換工具")
+st.title("🎁 BrownDust2 優惠券兌換工具")
 
 code = st.text_input("請輸入兌換碼")
 if st.button("開始兌換") and code.strip():
