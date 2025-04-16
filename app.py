@@ -13,7 +13,7 @@ if "user_ids" not in st.session_state:
     ]
 
 st.set_page_config(page_title="BrownDust2 優惠券兌換工具", page_icon="🎁")
-st.title("🎁 BrownDust2 優惠券批次兌換工具")
+st.title("🎁 BrownDust2 優惠券兌換工具")
 
 # ---------------------------
 # 顯示帳號清單（精簡模式）
@@ -24,7 +24,19 @@ cols = st.columns(5)
 for i, user in enumerate(st.session_state.user_ids):
     col = cols[i % 5]
     with col:
-        st.markdown(f"✅ `{user}`")
+        col.markdown(
+            f"""
+            <div style='
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                padding: 8px;
+                margin: 4px 0;
+                text-align: center;
+                background-color: #f9f9f9;
+            '>{user}</div>
+            """,
+            unsafe_allow_html=True
+        )
 
 # ---------------------------
 # 帳號管理（展開編輯區）
