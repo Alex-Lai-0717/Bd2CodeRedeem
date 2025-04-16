@@ -57,6 +57,7 @@ for i, user in enumerate(st.session_state.user_ids):
             unsafe_allow_html=True
         )
 
+
 # 編輯帳號清單功能
 def update_user_ids_to_github(user_ids):
     token = st.secrets["github_token"]
@@ -92,6 +93,7 @@ def update_user_ids_to_github(user_ids):
     else:
         st.error("❌ 同步 GitHub 失敗")
         st.json(put_res.json())
+
 
 # 編輯帳號 UI 區塊
 with st.expander("🔧 管理帳號（點擊展開）"):
@@ -151,27 +153,29 @@ if st.session_state.running:
                 message = data.get("message", "")
 
                 if "이미 사용한 쿠폰입니다" in message:
-                    st.warning(f"⚠️ {user_id}：該帳號已使用過此兌換碼")
+                    st.warning(f"⚠️ {user_id}：已使用")
                     used_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "used", "response": data})
-
                 elif response.status_code == 200:
                     st.success(f"✅ {user_id}：兌換成功")
                     success_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "success", "response": data})
-
                 else:
                     st.error(f"❌ {user_id}：未知錯誤（HTTP {response.status_code}）")
                     error_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "error", "response": data})
-
             except Exception as e:
                 st.error(f"❌ {user_id} 發生錯誤: {e}")
                 error_users.append(user_id)
                 execution_log.append({"user": user_id, "status": "exception", "response": {"error": str(e)}})
 
+            # ✅ 即時顯示結果（無巢狀 expander）
+            with st.expander(f"📄 {user_id} 回應詳細資料", expanded=False):
+                st.json(data)
+
             time.sleep(1)
 
+    # 不論完整或中止都記錄結果
     st.session_state.running = False
     st.session_state.last_result = {
         "success": success_users,
@@ -180,7 +184,7 @@ if st.session_state.running:
         "log": execution_log
     }
 
-# 結果摘要
+# ✅ 統一結果摘要區（執行完 or 中止後都會顯示）
 if st.session_state.last_result["log"]:
     st.subheader("📊 執行結果摘要")
     col1, col2, col3 = st.columns(3)
@@ -188,8 +192,6 @@ if st.session_state.last_result["log"]:
     col2.metric("⚠️ 已兌換過", len(st.session_state.last_result["used"]))
     col3.metric("❌ 發生錯誤", len(st.session_state.last_result["error"]))
 
-    with st.expander("🔍 詳細處理紀錄"):
+    with st.expander("🧾 詳細處理紀錄"):
         for log in st.session_state.last_result["log"]:
             st.markdown(f"**{log['user']}** - {log['status']}")
-            with st.expander("查看 API 回應"):
-                st.json(log["response"])
