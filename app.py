@@ -156,12 +156,13 @@ if st.session_state.running:
                     st.warning(f"⚠️ {user_id}：已使用")
                     used_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "used", "response": data})
-                elif response.status_code == 200:
+                elif response.status_code == 200 and data.get("errorCode") is None:
                     st.success(f"✅ {user_id}：兌換成功")
                     success_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "success", "response": data})
                 else:
-                    st.error(f"❌ {user_id}：未知錯誤（HTTP {response.status_code}）")
+                    err_msg = data.get("message", f"未知錯誤（HTTP {response.status_code}）")
+                    st.error(f"❌ {user_id}：{err_msg}")
                     error_users.append(user_id)
                     execution_log.append({"user": user_id, "status": "error", "response": data})
             except Exception as e:
