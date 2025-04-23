@@ -15,7 +15,3 @@
 pip install -r requirements.txt
 streamlit run app.py
 ```
-
-## 修改使用者清單
-
-請編輯 `app.py` 裡的 `USER_IDS` 清單。
